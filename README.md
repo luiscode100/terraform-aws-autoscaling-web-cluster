@@ -47,7 +47,31 @@ terraform-project/
 ---
 
 ## 🧠 Flujo de trabajo Terraform
+Descarga los plugins del proveedor AWS y prepara el entorno.  
 
 1. **Inicialización del entorno**
    ```bash
    terraform init
+   ```
+2. **Planificación del despliegue**
+Muestra los recursos que se crearán (+) o destruirán (–).  
+   ```bash
+   terraform plan
+   ```
+3. **Despliegue**
+Ejecuta el aprovisionamiento real.
+   ```bash
+   terraform apply
+   ```
+4.Destrucción
+   ```bash
+   terraform destroy
+   ```
+## 🌍 Configuración del proveedor
+El archivo provider define la región y se apoya en las credenciales configuradas localmente con AWS CLI:  
+```bash
+  provider "aws" {
+  region = "us-east-1"
+}
+```
+   
