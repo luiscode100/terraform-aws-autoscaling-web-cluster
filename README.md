@@ -235,7 +235,9 @@ Define las reglas de red que permiten el acceso HTTP y la comunicación entre lo
 
 ```
 
-### 🔄 Resumen visual del flujo
+### 🔄 Resumen visual del flujo  
+El balanceador reparte las peticiones entrantes entre las instancias EC2 activas.  
+El grupo de autoescalado lanza o elimina instancias según la carga y los health checks definidos.  
 
 ```bash
 
@@ -259,17 +261,144 @@ Define las reglas de red que permiten el acceso HTTP y la comunicación entre lo
          └───────────────────────────┘
 
 ```
+## ⚙️ Parte 3 — Recursos Avanzados y Flujo de Red
+
+### 🌐 Módulo VPC y Subredes
+
+El proyecto utiliza los recursos de red existentes en la **VPC por defecto** de AWS, lo que simplifica la infraestructura y evita la creación manual de redes y subredes nuevas.  
+Terraform obtiene esta información mediante **bloques de tipo `data`**, que consultan (pero no crean) recursos ya disponibles en la cuenta.
+
+#### Qué hace:
+- Obtiene el ID de la VPC por defecto (aws_vpc.default.id).
+- Recupera las subredes disponibles dentro de esa VPC en distintas zonas de disponibilidad.
+- Permite que otros módulos (como el Auto Scaling Group o el Load Balancer) utilicen esta red existente.
+
+```hcl
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  }
+}
+```
+
+### ⚖️ Módulo Load Balancer  
+
+Este módulo crea un Application Load Balancer (ALB) que distribuye las solicitudes HTTP entre las instancias del grupo de autoescalado.  
+Además, implementa reglas de escucha y comprobaciones de estado (health checks) para garantizar la disponibilidad del sistema.  
+
+#### Qué hace:
+
+- Crea un balanceador de tipo Application (nivel 7 – HTTP/HTTPS).
+- Se asocia a las subredes obtenidas del módulo anterior.
+- Aplica un grupo de seguridad dedicado para controlar el tráfico entrante y saliente.
+
+```hcl
+resource "aws_lb" "exampleLAJP" {
+  name               = var.alb_name
+  load_balancer_type = "application"
+  subnets            = data.aws_subnets.default.ids
+  security_groups    = [aws_security_group.albLAJP.id]
+}
+
+```
 
 
+### ⚖️ Listener (Regla de escucha) 
+El Listener es el componente que recibe las peticiones entrantes en el puerto 80 (HTTP) y las dirige al grupo de destino correspondiente.  
 
+#### Qué hace:
 
+- Escucha tráfico HTTP en el puerto 80.
+- Si no se cumple ninguna regla específica, devuelve una respuesta 404 simple.
+- Permite añadir posteriormente reglas personalizadas (listener rules) para manejar rutas específicas o servicios adicionales.
 
+```hcl
+resource "aws_lb_listener" "httpLAJP" {
+  load_balancer_arn = aws_lb.exampleLAJP.arn
+  port              = 80
+  protocol          = "HTTP"
 
+  default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "404: page not found"
+      status_code  = 404
+    }
+  }
+}
 
+```
 
+### 🎯 Target Group (Grupo de destino)
 
+Define el conjunto de instancias EC2 hacia las que el ALB enviará las solicitudes.  
+También configura los health checks para supervisar el estado de cada instancia. 
 
+#### Qué hace:
 
+- Enruta el tráfico HTTP hacia las instancias EC2 del Auto Scaling Group.
+- Realiza comprobaciones periódicas en la URL raíz (/) esperando una respuesta 200 OK.
+- Si una instancia falla el chequeo, deja de recibir tráfico hasta recuperarse.
+
+```hcl
+resource "aws_lb_target_group" "asgLAJP" {
+  name     = var.alb_name
+  port     = var.server_port
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
+
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 75
+    timeout             = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+```
+
+### 🔁 Listener Rule (Regla de enrutamiento)
+
+Esta regla conecta el Listener del ALB con el grupo de destino (Target Group) definido anteriormente.  
+Se aplica a todas las rutas (path_pattern = "*") y reenvía las peticiones al ASG.  
+
+#### Qué hace:
+- listener_arn: vincula la regla al listener HTTP principal.
+- priority: determina el orden en que se aplican las reglas (menor valor = mayor prioridad).
+- action: reenvía las peticiones al Target Group.
+```hcl
+resource "aws_lb_listener_rule" "asgLAJP" {
+  listener_arn = aws_lb_listener.httpLAJP.arn
+  priority     = 100
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.asgLAJP.arn
+  }
+}
+```
+El resultado es un flujo continuo:
+Cliente → ALB → Listener → Target Group → Instancias EC2
 
 
 
