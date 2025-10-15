@@ -1,5 +1,8 @@
 # 🚀 Infraestructura Web Autoescalable en AWS con Terraform (IaC)
 
+## 🧭 Introducción
+Proyecto personal de automatización cloud que demuestra el despliegue de una arquitectura web escalable en AWS mediante Terraform, siguiendo buenas prácticas DevOps e IaC.  
+
 ## 🧭 Descripción general
 
 Este proyecto demuestra la aplicación de los principios de **Infraestructura como Código (IaC)** mediante **Terraform** para desplegar de forma automática una **infraestructura web escalable en AWS**.  
@@ -9,6 +12,7 @@ A través del enfoque IaC, el proceso de despliegue se vuelve **reproducible, au
 La arquitectura se alinea con los principios **cloud-native** y las buenas prácticas **DevOps**, priorizando la automatización, la escalabilidad y la eficiencia operativa.
 
 ---
+
 
 ## 🎯 Objetivos del proyecto
 
@@ -88,6 +92,16 @@ El sistema se compone de los siguientes elementos:
 
 De esta forma, Terraform automatiza el despliegue completo de un **clúster web autoescalable**, reduciendo la intervención manual y asegurando coherencia entre entornos.
 
+---
+
+## 📁 Estructura del proyecto
+```bash
+terraform-aws-autoscaling-web-cluster/
+├── main.tf        # Definición principal de recursos
+├── variables.tf   # Variables reutilizables
+├── outputs.tf     # Salidas del despliegue (DNS del ALB)
+├── README.md      # Documentación del proyecto
+```
 ---
 
 ## ⚙️ Flujo de funcionamiento
@@ -462,9 +476,13 @@ terraform destroy
 
 💼 Este proyecto refleja el despliegue automatizado de una arquitectura web escalable y segura en AWS, gestionada íntegramente mediante Terraform.
 
+### 📤 Resultados del despliegue
+Al acceder al DNS, se muestra la página web servida por Apache instalada automáticamente en las instancias EC2.  
+```hlc
+Outputs:
 
-
-
+alb_dns_name = "alb-LAJP-123456789.us-east-1.elb.amazonaws.com"
+```
 
 
 
