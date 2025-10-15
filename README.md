@@ -18,12 +18,13 @@ Este proyecto demuestra la implementación de **Infraestructura como Código (Ia
 ---
 
 ## 🧩 Estructura del proyecto
+```bash
 terraform-project/
 ├── main.tf # Definición principal de recursos
 ├── variables.tf # Variables globales reutilizables
 ├── outputs.tf # Salidas del despliegue (DNS del Load Balancer)
 └── README.md # Documentación del proyecto
-
+```
 
 - **`main.tf`**: Contiene los recursos principales: EC2, Load Balancer, grupos de seguridad y autoscaling.
 - **`variables.tf`**: Centraliza nombres, puertos y otros parámetros modificables.
