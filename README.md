@@ -76,9 +76,9 @@ Este proyecto sirve como ejemplo práctico para:
 
 ---
 
-# 🧩 Parte 2 — Arquitectura y Componentes de la Infraestructura
+## 🧩 Parte 1 — Arquitectura y Componentes de la Infraestructura
 
-## 🏗️ Arquitectura general
+### 🏗️ Arquitectura general
 
 La infraestructura implementada con Terraform sigue una **arquitectura modular y escalable en AWS**, diseñada para ofrecer **alta disponibilidad, balanceo de carga y automatización completa del ciclo de vida de las instancias**.
 
@@ -93,8 +93,8 @@ El sistema se compone de los siguientes elementos:
 De esta forma, Terraform automatiza el despliegue completo de un **clúster web autoescalable**, reduciendo la intervención manual y asegurando coherencia entre entornos.
 
 ---
-
-## 📁 Estructura del proyecto
+## 🧩 Parte 2 — Estructura del proyecto Terraform
+### 📁 Estructura del proyecto
 ```bash
 terraform-aws-autoscaling-web-cluster/
 ├── main.tf        # Definición principal de recursos
