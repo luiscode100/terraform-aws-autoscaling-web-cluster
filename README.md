@@ -97,9 +97,10 @@ De esta forma, Terraform automatiza el despliegue completo de un **clúster web 
 ### 📁 Estructura del proyecto
 ```bash
 terraform-aws-autoscaling-web-cluster/
-├── main.tf        # Definición principal de recursos
-├── variables.tf   # Variables reutilizables
-├── outputs.tf     # Salidas del despliegue (DNS del ALB)
+├── terraform/
+│ ├── main.tf # Definición principal de recursos
+│ ├── variables.tf # Variables reutilizables del proyecto
+│ └── outputs.tf # Salidas (outputs) del despliegue (DNS del ALB)
 ├── README.md      # Documentación del proyecto
 ```
 ---
