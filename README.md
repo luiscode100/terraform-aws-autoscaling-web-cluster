@@ -71,3 +71,130 @@ Este proyecto sirve como ejemplo práctico para:
 5. **Resultados y salida del DNS** — validación del servicio web desplegado.
 
 ---
+
+# 🧩 Parte 2 — Arquitectura y Componentes de la Infraestructura
+
+## 🏗️ Arquitectura general
+
+La infraestructura implementada con Terraform sigue una **arquitectura modular y escalable en AWS**, diseñada para ofrecer **alta disponibilidad, balanceo de carga y automatización completa del ciclo de vida de las instancias**.
+
+El sistema se compone de los siguientes elementos:
+
+- **Application Load Balancer (ALB):** distribuye el tráfico HTTP entrante entre las instancias EC2 activas.
+- **Auto Scaling Group (ASG):** garantiza que siempre haya entre 2 y 3 instancias disponibles, ajustando la capacidad según la carga.
+- **Launch Configuration:** define la plantilla base de las instancias EC2 (tipo de máquina, AMI, script de arranque, etc.).
+- **Security Groups:** controlan el tráfico de red entrante y saliente, protegiendo tanto al balanceador como a las instancias.
+- **Data Sources (VPC y Subnets):** obtienen la red por defecto de AWS para desplegar todos los recursos dentro de una infraestructura existente.
+
+De esta forma, Terraform automatiza el despliegue completo de un **clúster web autoescalable**, reduciendo la intervención manual y asegurando coherencia entre entornos.
+
+---
+
+## ⚙️ Flujo de funcionamiento
+
+1. El **usuario ejecuta** los comandos `terraform init`, `plan` y `apply`.  
+2. Terraform **lee las configuraciones declarativas** de los archivos `.tf`.  
+3. Se **crea la infraestructura en AWS** en el orden adecuado:
+   - Primero los **grupos de seguridad** y los **recursos de red (data sources)**.
+   - Luego las **instancias EC2**, el **Auto Scaling Group** y el **Load Balancer**.
+4. El **Load Balancer** distribuye el tráfico HTTP (puerto 80) entre las instancias activas.
+5. Si una instancia falla, el **Auto Scaling Group** lanza automáticamente otra para mantener la capacidad mínima definida.
+6. Al finalizar, el comando `terraform destroy` elimina todos los recursos de manera controlada.
+
+---
+
+## 🧱 Componentes principales de Terraform
+
+### 🔹 Provider — Configuración del entorno AWS
+
+Define el proveedor de servicios en la nube y la región donde se desplegarán los recursos:
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+```
+Terraform se conecta a AWS utilizando las credenciales almacenadas en el archivo local ~/.aws/credentials, evitando incluir datos sensibles en el código fuente.  
+
+### 🔹 Data Sources — VPC y Subnets  
+
+Consultan información de la VPC por defecto y sus subredes dentro de la región seleccionada:
+
+```hcl
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+```
+Propósito: reutilizar la red existente en AWS sin necesidad de crear una nueva infraestructura de red, garantizando compatibilidad y simplicidad.
+
+### 🔹 Launch Configuration — Plantilla base de instancias EC2  
+Define la configuración base de cada instancia que se desplegará dentro del grupo de autoescalado:  
+
+#### Qué hace:
+
+- Usa una AMI oficial de Amazon Linux 2.
+
+- Instala y configura Apache automáticamente.
+
+- Crea un archivo index.html como mensaje de prueba.
+
+- La cláusula lifecycle evita interrupciones al actualizar el entorno, creando las nuevas instancias antes de destruir las anteriores.
+
+```hcl
+resource "aws_launch_configuration" "exampleLAJP" {
+  image_id        = "ami-08982f1c5bf93d976"  # Amazon Linux 2
+  instance_type   = "t3.micro"
+  security_groups = [aws_security_group.instanceLAJP.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo yum update -y
+              sudo yum install -y httpd
+              sudo systemctl start httpd
+              sudo systemctl enable httpd
+              echo "¡Hola desde mi EC2 con Terraform!" > /var/www/html/index.html
+            EOF
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
