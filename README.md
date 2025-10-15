@@ -202,7 +202,7 @@ resource "aws_autoscaling_group" "exampleLAJP" {
 ```
 
 
-### 🔹 Security Group — Control de tráfico
+### 🔹 Security Group Instancia — Control de tráfico
 
 Define las reglas de red que permiten el acceso HTTP y la comunicación entre los componentes:
 
@@ -398,7 +398,69 @@ resource "aws_lb_listener_rule" "asgLAJP" {
 }
 ```
 El resultado es un flujo continuo:
-Cliente → ALB → Listener → Target Group → Instancias EC2
+Cliente → ALB → Listener → Target Group → Instancias EC2  
+
+
+
+### 🔐 Módulo Security Group del ALB
+Crea un grupo de seguridad específico para el Load Balancer, permitiendo tráfico HTTP público y salida completa hacia Internet.   
+
+#### Qué hace:  
+- Entrada (Ingress): habilita solicitudes HTTP en el puerto 80 desde cualquier IP.
+- Salida (Egress): permite que el ALB se comunique con las instancias EC2 y otros servicios de AWS.
+- Este Security Group complementa al de las instancias, garantizando una comunicación segura entre ambos.
+- 
+```hcl
+resource "aws_security_group" "albLAJP" {
+  name = var.alb_security_group_name
+
+  # Permite tráfico HTTP entrante
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Permite todo el tráfico saliente
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+```
+
+
+### 🧹 Liberación de recursos
+Al finalizar las pruebas o la demostración, es fundamental eliminar todos los recursos creados para evitar costos innecesarios.  
+Terraform lo hace de forma controlada con el siguiente comando:  
+
+#### Recomendaciones:
+- Verifica que no existan errores durante la ejecución.
+- Asegúrate de haber obtenido las capturas o el DNS del balanceador antes de destruir la infraestructura.
+- Este proceso eliminará automáticamente el ALB, las instancias EC2, los grupos de seguridad y el ASG.
+
+```hcl
+terraform destroy
+```
+
+
+### 🔄 Resumen del flujo completo
+
+```bash
+1️⃣ El usuario ejecuta "terraform apply"
+2️⃣ Terraform crea los recursos en AWS (VPC, SG, EC2, ALB, ASG)
+3️⃣ El Application Load Balancer recibe peticiones HTTP (puerto 80)
+4️⃣ Las distribuye al grupo de Auto Scaling (EC2 instances)
+5️⃣ Los health checks garantizan la disponibilidad continua
+6️⃣ El tráfico se balancea de forma automática entre zonas de disponibilidad
+7️⃣ "terraform destroy" elimina todos los recursos de forma segura
+```
+
+
+💼 Este proyecto refleja el despliegue automatizado de una arquitectura web escalable y segura en AWS, gestionada íntegramente mediante Terraform.
 
 
 
