@@ -170,15 +170,95 @@ resource "aws_launch_configuration" "exampleLAJP" {
 
 ```
 
+### 🔹 Auto Scaling Group — Escalabilidad automática
+Crea el grupo responsable de mantener un número mínimo y máximo de instancias en ejecución:  
+
+#### Qué hace:  
+- Mantiene entre 2 y 3 instancias EC2 activas según la carga.  
+
+- Se integra con el Load Balancer mediante el Target Group.
+
+- Realiza comprobaciones de estado (health checks) gestionadas por el ALB.
+
+- Propaga etiquetas (tags) para identificar los servidores desplegados.
+  
+```hcl
+resource "aws_autoscaling_group" "exampleLAJP" {
+  launch_configuration = aws_launch_configuration.exampleLAJP.name
+  vpc_zone_identifier  = data.aws_subnets.default.ids
+  target_group_arns    = [aws_lb_target_group.asgLAJP.arn]
+  health_check_type    = "ELB"
+
+  min_size = 2
+  max_size = 3
+
+  tag {
+    key                 = "Name"
+    value               = "terraform-asg-example-LAJP"
+    propagate_at_launch = true
+  }
+}
+
+```
 
 
+### 🔹 Security Group — Control de tráfico
 
+Define las reglas de red que permiten el acceso HTTP y la comunicación entre los componentes:
 
+#### Qué hace:
 
+- Permite tráfico HTTP (puerto 80) desde cualquier dirección IP pública (solo para demostración).
 
+- Autoriza todo el tráfico saliente para que las instancias puedan comunicarse con Internet.
 
+- Se asocia tanto al Load Balancer como a las instancias EC2 para habilitar el flujo correcto de datos.
 
+```hcl
+  resource "aws_security_group" "instanceLAJP" {
+  name = "instance-sg-LAJP"
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+```
+
+### 🔄 Resumen visual del flujo
+
+```bash
+
+        ┌──────────────────────────────┐
+        │        Usuario final         │
+        └──────────────┬───────────────┘
+                       │ HTTP (puerto 80)
+             ┌─────────▼─────────┐
+             │ Application Load  │
+             │    Balancer (ALB) │
+             └─────────┬─────────┘
+                       │
+              ┌────────▼────────┐
+              │ Auto Scaling    │
+              │ Group (ASG)     │
+              └────────┬────────┘
+                       │
+         ┌─────────────▼─────────────┐
+         │  EC2 Instances (Apache)   │
+         │  Servidor Web dinámico    │
+         └───────────────────────────┘
+
+```
 
 
 
