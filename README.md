@@ -1,9 +1,9 @@
-# 🚀 Infraestructura Web Autoescalable en AWS con Terraform (IaC)
+# Infraestructura Web Autoescalable en AWS con Terraform (IaC)
 
-## 🧭 Introducción
+## Introducción
 Proyecto personal de automatización cloud que demuestra el despliegue de una arquitectura web escalable en AWS mediante Terraform, siguiendo buenas prácticas DevOps e IaC.  
 
-## 🧭 Descripción general
+## Descripción general
 
 Este proyecto demuestra la aplicación de los principios de **Infraestructura como Código (IaC)** mediante **Terraform** para desplegar de forma automática una **infraestructura web escalable en AWS**.  
 El sistema implementa un entorno completo compuesto por **instancias EC2**, un **Application Load Balancer (ALB)** y un **Auto Scaling Group (ASG)**, todo definido, versionado y gestionado mediante código declarativo.
@@ -14,7 +14,7 @@ La arquitectura se alinea con los principios **cloud-native** y las buenas prác
 ---
 
 
-## 🎯 Objetivos del proyecto
+## Objetivos del proyecto
 
 - **Automatizar el despliegue de infraestructura.**  
   Utilizar Terraform para aprovisionar y administrar recursos en AWS a través de código declarativo.
@@ -33,7 +33,7 @@ La arquitectura se alinea con los principios **cloud-native** y las buenas prác
 
 ---
 
-## 🧰 Tecnologías principales
+## Tecnologías principales
 
 | Herramienta / Servicio | Propósito |
 |-------------------------|-----------|
@@ -46,7 +46,7 @@ La arquitectura se alinea con los principios **cloud-native** y las buenas prác
 
 ---
 
-## ⚙️ ¿Por qué Terraform?
+## ¿Por qué Terraform?
 
 Terraform permite describir infraestructuras de forma **declarativa y versionable**, como si se tratara de código fuente.  
 Su sistema de **gestión de estado (state management)** calcula las diferencias entre la configuración actual y el estado deseado, aplicando solo los cambios necesarios de forma segura y predecible.
@@ -55,7 +55,7 @@ Esto lo convierte en una herramienta esencial en flujos de trabajo **DevOps y Cl
 
 ---
 
-## 🌎 Alcance del proyecto
+## Alcance del proyecto
 
 Este proyecto sirve como ejemplo práctico para:
 
@@ -66,7 +66,7 @@ Este proyecto sirve como ejemplo práctico para:
 
 ---
 
-## 🧩 Próximas secciones
+## Próximas secciones
 
 1. **Arquitectura general del sistema** — cómo se conectan los componentes de AWS.  
 2. **Estructura del proyecto Terraform** — descripción de los archivos `.tf`.  
@@ -76,9 +76,9 @@ Este proyecto sirve como ejemplo práctico para:
 
 ---
 
-## 🧩 Parte 1 — Arquitectura y Componentes de la Infraestructura
+## Parte 1 — Arquitectura y Componentes de la Infraestructura
 
-### 🏗️ Arquitectura general
+### Arquitectura general
 
 La infraestructura implementada con Terraform sigue una **arquitectura modular y escalable en AWS**, diseñada para ofrecer **alta disponibilidad, balanceo de carga y automatización completa del ciclo de vida de las instancias**.
 
@@ -93,8 +93,8 @@ El sistema se compone de los siguientes elementos:
 De esta forma, Terraform automatiza el despliegue completo de un **clúster web autoescalable**, reduciendo la intervención manual y asegurando coherencia entre entornos.
 
 ---
-## 🧩 Parte 2 — Estructura del proyecto Terraform
-### 📁 Estructura del proyecto
+## Parte 2 — Estructura del proyecto Terraform
+### Estructura del proyecto
 ```bash
 terraform-aws-autoscaling-web-cluster/
 ├── terraform/
@@ -105,7 +105,7 @@ terraform-aws-autoscaling-web-cluster/
 ```
 ---
 
-## ⚙️ Flujo de funcionamiento
+## Flujo de funcionamiento
 
 1. El **usuario ejecuta** los comandos `terraform init`, `plan` y `apply`.  
 2. Terraform **lee las configuraciones declarativas** de los archivos `.tf`.  
@@ -118,9 +118,9 @@ terraform-aws-autoscaling-web-cluster/
 
 ---
 
-## 🧱 Componentes principales de Terraform
+## Componentes principales de Terraform
 
-### 🔹 Provider — Configuración del entorno AWS
+### Provider — Configuración del entorno AWS
 
 Define el proveedor de servicios en la nube y la región donde se desplegarán los recursos:
 
@@ -131,7 +131,7 @@ provider "aws" {
 ```
 Terraform se conecta a AWS utilizando las credenciales almacenadas en el archivo local ~/.aws/credentials, evitando incluir datos sensibles en el código fuente.  
 
-### 🔹 Data Sources — VPC y Subnets  
+### Data Sources — VPC y Subnets  
 
 Consultan información de la VPC por defecto y sus subredes dentro de la región seleccionada:
 
@@ -150,7 +150,7 @@ data "aws_subnets" "default" {
 ```
 Propósito: reutilizar la red existente en AWS sin necesidad de crear una nueva infraestructura de red, garantizando compatibilidad y simplicidad.
 
-### 🔹 Launch Configuration — Plantilla base de instancias EC2  
+###  Launch Configuration — Plantilla base de instancias EC2  
 Define la configuración base de cada instancia que se desplegará dentro del grupo de autoescalado:  
 
 #### Qué hace:
@@ -185,7 +185,7 @@ resource "aws_launch_configuration" "exampleLAJP" {
 
 ```
 
-### 🔹 Auto Scaling Group — Escalabilidad automática
+###  Auto Scaling Group — Escalabilidad automática
 Crea el grupo responsable de mantener un número mínimo y máximo de instancias en ejecución:  
 
 #### Qué hace:  
@@ -217,7 +217,7 @@ resource "aws_autoscaling_group" "exampleLAJP" {
 ```
 
 
-### 🔹 Security Group Instancia — Control de tráfico
+### Security Group Instancia — Control de tráfico
 
 Define las reglas de red que permiten el acceso HTTP y la comunicación entre los componentes:
 
@@ -250,7 +250,7 @@ Define las reglas de red que permiten el acceso HTTP y la comunicación entre lo
 
 ```
 
-### 🔄 Resumen visual del flujo  
+### Resumen visual del flujo  
 El balanceador reparte las peticiones entrantes entre las instancias EC2 activas.  
 El grupo de autoescalado lanza o elimina instancias según la carga y los health checks definidos.  
 
@@ -276,9 +276,9 @@ El grupo de autoescalado lanza o elimina instancias según la carga y los health
          └───────────────────────────┘
 
 ```
-## ⚙️ Parte 3 — Recursos Avanzados y Flujo de Red
+## Parte 3 — Recursos Avanzados y Flujo de Red
 
-### 🌐 Módulo VPC y Subredes
+### Módulo VPC y Subredes
 
 El proyecto utiliza los recursos de red existentes en la **VPC por defecto** de AWS, lo que simplifica la infraestructura y evita la creación manual de redes y subredes nuevas.  
 Terraform obtiene esta información mediante **bloques de tipo `data`**, que consultan (pero no crean) recursos ya disponibles en la cuenta.
@@ -306,7 +306,7 @@ data "aws_subnets" "default" {
 }
 ```
 
-### ⚖️ Módulo Load Balancer  
+### Módulo Load Balancer  
 
 Este módulo crea un Application Load Balancer (ALB) que distribuye las solicitudes HTTP entre las instancias del grupo de autoescalado.  
 Además, implementa reglas de escucha y comprobaciones de estado (health checks) para garantizar la disponibilidad del sistema.  
@@ -328,7 +328,7 @@ resource "aws_lb" "exampleLAJP" {
 ```
 
 
-### ⚖️ Listener (Regla de escucha) 
+### Listener (Regla de escucha) 
 El Listener es el componente que recibe las peticiones entrantes en el puerto 80 (HTTP) y las dirige al grupo de destino correspondiente.  
 
 #### Qué hace:
@@ -355,7 +355,7 @@ resource "aws_lb_listener" "httpLAJP" {
 
 ```
 
-### 🎯 Target Group (Grupo de destino)
+### Target Group (Grupo de destino)
 
 Define el conjunto de instancias EC2 hacia las que el ALB enviará las solicitudes.  
 También configura los health checks para supervisar el estado de cada instancia. 
@@ -386,7 +386,7 @@ resource "aws_lb_target_group" "asgLAJP" {
 
 ```
 
-### 🔁 Listener Rule (Regla de enrutamiento)
+### Listener Rule (Regla de enrutamiento)
 
 Esta regla conecta el Listener del ALB con el grupo de destino (Target Group) definido anteriormente.  
 Se aplica a todas las rutas (path_pattern = "*") y reenvía las peticiones al ASG.  
@@ -417,7 +417,7 @@ Cliente → ALB → Listener → Target Group → Instancias EC2
 
 
 
-### 🔐 Módulo Security Group del ALB
+### Módulo Security Group del ALB
 Crea un grupo de seguridad específico para el Load Balancer, permitiendo tráfico HTTP público y salida completa hacia Internet.   
 
 #### Qué hace:  
@@ -448,7 +448,7 @@ resource "aws_security_group" "albLAJP" {
 ```
 
 
-### 🧹 Liberación de recursos
+### Liberación de recursos
 Al finalizar las pruebas o la demostración, es fundamental eliminar todos los recursos creados para evitar costos innecesarios.  
 Terraform lo hace de forma controlada con el siguiente comando:  
 
@@ -462,22 +462,22 @@ terraform destroy
 ```
 
 
-### 🔄 Resumen del flujo completo
+### Resumen del flujo completo
 
 ```bash
-1️⃣ El usuario ejecuta "terraform apply"
-2️⃣ Terraform crea los recursos en AWS (VPC, SG, EC2, ALB, ASG)
-3️⃣ El Application Load Balancer recibe peticiones HTTP (puerto 80)
-4️⃣ Las distribuye al grupo de Auto Scaling (EC2 instances)
-5️⃣ Los health checks garantizan la disponibilidad continua
-6️⃣ El tráfico se balancea de forma automática entre zonas de disponibilidad
-7️⃣ "terraform destroy" elimina todos los recursos de forma segura
+1️ El usuario ejecuta "terraform apply"
+2️ Terraform crea los recursos en AWS (VPC, SG, EC2, ALB, ASG)
+3️ El Application Load Balancer recibe peticiones HTTP (puerto 80)
+4️ Las distribuye al grupo de Auto Scaling (EC2 instances)
+5️ Los health checks garantizan la disponibilidad continua
+6️ El tráfico se balancea de forma automática entre zonas de disponibilidad
+7️ "terraform destroy" elimina todos los recursos de forma segura
 ```
 
 
-💼 Este proyecto refleja el despliegue automatizado de una arquitectura web escalable y segura en AWS, gestionada íntegramente mediante Terraform.
+Este proyecto refleja el despliegue automatizado de una arquitectura web escalable y segura en AWS, gestionada íntegramente mediante Terraform.
 
-### 📤 Resultados del despliegue
+### Resultados del despliegue
 Al acceder al DNS, se muestra la página web servida por Apache instalada automáticamente en las instancias EC2.  
 ```hlc
 Outputs:
